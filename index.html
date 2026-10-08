@@ -196,6 +196,21 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, 
 }
 .dq-press-btn:active { background:#2a4d8e; }
 
+/* === Claude Code のキャラクター（メニュー左上） === */
+.cc-mascot {
+  position: absolute; top: 10px; left: 20px; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  text-decoration: none;
+}
+.cc-mascot svg { width: 36px; height: 27px; shape-rendering: crispEdges; overflow: visible; transform-origin: center; }
+.cc-mascot .cc-label {
+  font-family: -apple-system, "Segoe UI", sans-serif; font-size: 7px; letter-spacing: 0.05em;
+  color: #d97757; opacity: 0.8; white-space: nowrap;
+}
+.cc-body { fill: #d97757; }
+.cc-eye { fill: #1a1612; transform-box: fill-box; transform-origin: center; animation: cc-blink 4s infinite; }
+@keyframes cc-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+
 /* ===== 1: ゆうパック ===== */
 .yuupack-inner { max-width:480px; margin:auto; background:white; padding:12px 16px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); margin-top:10px; margin-bottom:10px; }
 .yuupack-inner h2 { color:#004098; margin-top:0; margin-bottom:8px; font-size:20px; border-bottom:2px solid #004098; padding-bottom:6px; text-align:center; }
@@ -373,6 +388,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, 
 <div class="pg" id="page-menu">
   <div id="menu-section">
     <div class="dq-stars" id="dq-stars"></div>
+    <a class="cc-mascot" href="https://claude.com/claude-code" target="_blank" rel="noopener" title="Claude Code で作成" aria-label="Claude Code で作成">
+      <svg viewBox="0 -1 12 9" aria-hidden="true">
+        <rect class="cc-body cc-leg" x="2" y="6" width="1" height="2"/>
+        <rect class="cc-body cc-leg" x="4" y="6" width="1" height="2"/>
+        <rect class="cc-body cc-leg" x="7" y="6" width="1" height="2"/>
+        <rect class="cc-body cc-leg" x="9" y="6" width="1" height="2"/>
+        <g class="cc-hop">
+          <rect class="cc-body" x="2" y="0" width="8" height="6"/>
+          <rect class="cc-body cc-arm-l" x="0" y="2" width="2" height="2"/>
+          <rect class="cc-body cc-arm-r" x="10" y="2" width="2" height="2"/>
+          <rect class="cc-eye" x="3" y="1" width="1" height="1"/>
+          <rect class="cc-eye" x="8" y="1" width="1" height="1"/>
+        </g>
+      </svg>
+      <span class="cc-label">Claude Code</span>
+    </a>
     <div class="dq-title">★ ゆうびん りょうきん ★</div>
     <div class="dq-subtitle">— POSTAL CALCULATOR —</div>
     <div class="dq-window">
@@ -1080,6 +1111,46 @@ function hSearch(){
   }
   opScreen.addEventListener('click', startGame);
   opScreen.addEventListener('touchend', startGame);
+})();
+
+// ===== Claude Code のキャラクター（メニュー左上）=====
+//   右へ歩く → 端で立ち止まって手足をちょこちょこ動かし、振り向く → 左へ戻る … を繰り返す
+(function ccMascot() {
+  const svg = document.querySelector(".cc-mascot svg");
+  if (!svg) return;
+  const body = svg.querySelector(".cc-hop");
+  const armL = svg.querySelector(".cc-arm-l");
+  const armR = svg.querySelector(".cc-arm-r");
+  const legs = Array.from(svg.querySelectorAll(".cc-leg"));
+  const HALF = 12, STEP = 2, TICK = 220, IDLE_TICKS = 9;
+  let x = -HALF, dir = 1, mode = "idle", t = 0;
+  const legUp = (i, up) => legs[i].setAttribute("height", up ? 1 : 2);
+  const armUp = (el, up) => el.setAttribute("y", up ? 1 : 2);
+  const bob = up => body.setAttribute("transform", up ? "translate(0,-1)" : "");
+  const rest = () => { legs.forEach((_, i) => legUp(i, false)); armUp(armL, false); armUp(armR, false); bob(false); };
+  const draw = () => { svg.style.transform = `translateX(${x}px) scaleX(${dir})`; };
+  function tick() {
+    t++;
+    if (mode === "walk") {
+      const ph = t % 2;
+      armUp(armL, false); armUp(armR, false);
+      legUp(0, ph === 0); legUp(2, ph === 0);
+      legUp(1, ph === 1); legUp(3, ph === 1);
+      bob(ph === 0);
+      x += STEP * dir;
+      if (x <= -HALF || x >= HALF) { x = Math.max(-HALF, Math.min(HALF, x)); mode = "idle"; t = 0; rest(); }
+    } else {
+      const ph = t % 4;
+      armUp(armL, ph === 1); armUp(armR, ph === 3);
+      legUp(0, ph === 2); legUp(3, ph === 0);
+      bob(false);
+      if (t === Math.floor(IDLE_TICKS / 2)) dir = (x >= HALF) ? -1 : 1;
+      if (t >= IDLE_TICKS) { mode = "walk"; t = 0; rest(); }
+    }
+    draw();
+  }
+  draw();
+  setInterval(tick, TICK);
 })();
 
 document.body.addEventListener('touchstart',()=>getAC(),{once:true});
