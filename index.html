@@ -143,6 +143,31 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, 
   animation: op-press-in 0.5s ease-out 2.2s forwards;
 }
 
+/* ジンの登場シーン（元画像の下にあったメッセージ枠は切り取り済み） */
+.op-scene {
+  width: 310px; max-width: 100%; margin-top: 14px; z-index: 1;
+  border: 3px solid #ffe44d; border-radius: 4px; overflow: hidden; background: #000;
+  display: none;
+}
+.op-scene img { display: block; width: 100%; height: auto; }
+.op-msgbox {
+  width: 310px; max-width: 100%; min-height: 92px; margin-top: 8px; z-index: 1;
+  padding: 10px 12px; border: 3px solid #ffe44d; border-radius: 4px; background: #000010;
+  color: #f8f8f8; font-size: 13px; font-weight: 700; line-height: 1.7; letter-spacing: 1px;
+  white-space: pre-line; text-align: left; display: none;
+}
+.op-cursor { display: inline-block; width: 8px; height: 13px; background: #f8f8f8; margin-left: 2px; vertical-align: middle; animation: op-blink 0.6s step-end infinite; }
+/* 1回目のタップでジンが登場（効果音を鳴らすにはタップが必要なため） */
+#opening-screen.appear .op-hero-wrap,
+#opening-screen.appear .op-horizon { display: none; }
+#opening-screen.appear .op-scene { display: block; animation: op-encounter 0.9s steps(1) both; }
+#opening-screen.appear .op-msgbox { display: block; animation: op-press-in 0.3s ease 0.9s both; }
+/* 敵があらわれた時のようにチカチカ点滅して登場 */
+@keyframes op-encounter {
+  0% { opacity: 0; } 15% { opacity: 1; } 30% { opacity: 0; } 45% { opacity: 1; }
+  60% { opacity: 0; } 75%, 100% { opacity: 1; }
+}
+
 .op-meteor {
   position: absolute; width: 2px; height: 60px;
   background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0.8));
@@ -399,6 +424,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, 
       </circle>
     </svg>
   </div>
+  <div class="op-scene"><img src="jin.jpg" alt="ジン" width="900" height="329"></div>
+  <div class="op-msgbox"><span id="op-msg"></span><span class="op-cursor"></span></div>
   <div class="op-press" id="op-press">▶ タップしてはじめる ◀</div>
   <div class="op-copy">© 2025 YUUBIN CALC</div>
 </div>
@@ -1151,11 +1178,53 @@ function hSearch(){
     melody.forEach(([f,d])=>{ tone(f,'square',d*0.9,0.06,t); t+=d; });
   }
 
+  // 敵があらわれた！：上下にかけ回る速いフレーズ → 低い音でドン
+  function playEncounter(){
+    const run=[1319,1175,1047,988,880,784,698,659,698,784,880,988,1047,1175,1319,1568];
+    run.forEach((f,i)=>tone(f,'square',0.05,0.06,i*0.035));
+    const t=run.length*0.035+0.02;
+    tone(196,'square',0.35,0.08,t); tone(233,'square',0.35,0.05,t); tone(98,'sawtooth',0.4,0.05,t);
+  }
+  // セリフを打つ音：短い「ピッ」
+  function playBlip(){ tone(1100,'square',0.03,0.04,0); }
+
+  // ジンのセリフを1文字ずつ表示
+  const jinLines=[
+    'ジンが あらわれた！',
+    'よう。荷物の 行き先は 決まったか？',
+    '料金さがしなら おれに まかせとけ！'
+  ];
+  const jinFull=jinLines.join('\n');
+  const msgEl=document.getElementById('op-msg');
+  const pressEl=document.getElementById('op-press');
+  let pos=0, typed=false;
+  function finishMsg(){ pos=jinFull.length; msgEl.textContent=jinFull; typed=true; pressEl.textContent='▶ タップしてすすむ ◀'; }
+  function typeMsg(){
+    if(typed) return;
+    pos++; msgEl.textContent=jinFull.slice(0,pos);
+    const c=jinFull.charAt(pos-1);
+    if(c!==' '&&c!=='\n'&&c!=='　') playBlip();
+    if(pos>=jinFull.length){ finishMsg(); return; }
+    setTimeout(typeMsg, c==='\n'?380:70);
+  }
+
   const opScreen = document.getElementById('opening-screen');
-  let started = false;
+  let stage = 0, started = false;
   function startGame(e){
-    if(started) return; started=true;
+    if(started) return;
     if(e && e.type==='touchend') e.preventDefault();
+    if(stage===0){
+      // 1回目のタップ：ジンがあらわれる
+      stage=1;
+      opScreen.classList.add('appear');
+      pressEl.textContent='';
+      playEncounter();
+      setTimeout(typeMsg, 1100);
+      return;
+    }
+    // セリフの途中でタップしたら、残りを一気に表示
+    if(!typed){ finishMsg(); playBlip(); return; }
+    started=true;
     playOpening();
     opScreen.classList.add('fade-out');
     if(meteorTimer) clearTimeout(meteorTimer);
