@@ -423,7 +423,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, 
       </circle>
     </svg>
   </div>
-  <div class="op-scene"><img src="jin.jpg" alt="ジン" width="900" height="329"></div>
+  <div class="op-scene"><img id="op-jin" src="jin1.jpg" alt="ジン"></div>
   <div class="op-msgbox"><span id="op-msg"></span><span class="op-cursor"></span></div>
   <div class="op-press" id="op-press">▶ タップしてはじめる ◀</div>
   <div class="op-copy">© 2025 YUUBIN CALC</div>
@@ -1175,6 +1175,9 @@ function hSearch(){
   }
   // セリフを打つ音：短い「ピッ」
   function playBlip(){ tone(1100,'square',0.03,0.04,0); }
+
+  // ジンの絵は4種類からランダムに1枚
+  document.getElementById('op-jin').src='jin'+(1+Math.floor(Math.random()*4))+'.jpg';
 
   // ジンのセリフを1文字ずつ表示
   const jinLines=[
