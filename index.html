@@ -1176,8 +1176,8 @@ function hSearch(){
   // セリフを打つ音：短い「ピッ」
   function playBlip(){ tone(1100,'square',0.03,0.04,0); }
 
-  // ジンの絵は5種類からランダムに1枚
-  const jinPics=['jin7.jpg','jin8.jpg','jin9.jpg','jin10.jpg','jin11.jpg'];
+  // ジンの絵は4種類からランダムに1枚
+  const jinPics=['jin7.jpg','jin8.jpg','jin9.jpg','jin11.jpg'];
   document.getElementById('op-jin').src=jinPics[Math.floor(Math.random()*jinPics.length)];
 
   // ジンのセリフを1文字ずつ表示
