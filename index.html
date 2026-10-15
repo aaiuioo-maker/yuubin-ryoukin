@@ -586,8 +586,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, 
         <span class="dq-item-arrow">▷</span>
       </div>
     </div>
-    <button class="dq-press-btn" onclick="menuDecide()">けってい！</button>
-    <div class="dq-footer">タップして えらぶ　　けってい！ で ひらく</div>
+    <div class="dq-footer">タップして ひらく</div>
   </div>
 </div>
 
@@ -847,13 +846,17 @@ function goToPage(idx) {
 
 function goToMenu() { sndCancel(); goToPage(0); }
 
+// タップした項目にカーソルを動かして、そのまま開く（決定ボタンなし）
+var menuOpening=false;
 function menuSelect(idx) {
-  if(idx===menuSel) return;
-  sndCursor();
+  if(menuOpening) return;
   var items=document.querySelectorAll('.dq-item');
   items[menuSel].classList.remove('selected');
   menuSel=idx;
   items[menuSel].classList.add('selected');
+  menuOpening=true;
+  menuDecide();
+  setTimeout(function(){ menuOpening=false; },400);
 }
 
 function menuDecide() {
