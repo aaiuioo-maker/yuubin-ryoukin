@@ -761,7 +761,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, 
     <label>荷物の重さを入力 (グラム)</label>
     <div class="k-input-group">
       <input type="text" id="k-weight" placeholder="例: 1240" inputmode="numeric" autocomplete="off" enterkeyhint="done">
-      <button class="k-btn-mic" id="k-mic" onclick="kVoice()" aria-label="音声で入力">🎤</button>
       <button class="k-btn-clear" onclick="kClear()">クリア</button>
     </div>
     <div class="k-voice" id="k-voice"></div>
@@ -1122,7 +1121,7 @@ function kVoiceMsg(html){
   const el=document.getElementById('k-voice');
   if(html){el.innerHTML=html;el.style.display='block';}else{el.style.display='none';}
 }
-function kStopVoice(){ document.getElementById('k-mic').classList.remove('listening'); }
+function kStopVoice(){ const m=document.getElementById('k-mic'); if(m) m.classList.remove('listening'); }
 // 🎤ボタン: 文字キーボードで開いて、キーボードのマイクで話してもらう
 function kVoice(){
   sndYbChk();
