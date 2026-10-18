@@ -273,6 +273,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, 
 .yp-chk-row input[type="checkbox"] { width:20px; height:20px; margin-right:6px; accent-color:#004098; flex-shrink:0; }
 .yp-chk-row label { font-size:15px; cursor:pointer; flex-grow:1; white-space:nowrap; letter-spacing:-0.6px; }
 .yp-ptag { color:#e60012; font-size:15px; font-weight:bold; white-space:nowrap; flex-shrink:0; }
+.yp-sub { font-size:12px; color:#555; font-weight:normal; letter-spacing:-0.3px; }
 .yp-ptag-b { color:#004098; font-size:15px; font-weight:bold; white-space:nowrap; flex-shrink:0; }
 .yp-chk-row.disabled { opacity:0.4; pointer-events:none; }
 .yp-hr { margin:8px 0; border:none; border-top:1px dashed #ccc; }
@@ -640,7 +641,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, 
         </div>
         <div class="yp-chk-row">
           <input type="checkbox" id="yp-chk-carry" onchange="ypHandleLogic('carryin')">
-          <label for="yp-chk-carry">持込割引</label>
+          <label for="yp-chk-carry">持込割引<span class="yp-sub">（取次店・コンビニ）</span></label>
           <span class="yp-ptag">-120円</span>
         </div>
         <hr class="yp-hr">
